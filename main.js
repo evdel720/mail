@@ -1,8 +1,12 @@
 const Router = require('./router.js');
 const Inbox = require('./inbox.js');
+const Sent = require('./sent.js');
+const Compose = require('./compose.js');
 
 const routes = {};
 routes.inbox = new Inbox();
+routes.sent = new Sent();
+routes.compose = new Compose();
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -17,5 +21,5 @@ document.addEventListener("DOMContentLoaded", function () {
   let content = document.querySelector(".content");
   let router = new Router(content, routes);
   router.start();
-
+  location.hash = "inbox";
 });

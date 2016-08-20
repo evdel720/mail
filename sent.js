@@ -1,11 +1,12 @@
 const MessageStore = require('./message_store.js');
 
-class Inbox {
+
+class Sent {
 
   render() {
     let ul = document.createElement("ul");
     ul.className = "messages";
-    let messages = MessageStore.getInboxMessages();
+    let messages = MessageStore.getSentMessages();
     messages.forEach((message) => {
       ul.appendChild(this.renderMessage(message));
     });
@@ -15,7 +16,7 @@ class Inbox {
   renderMessage(message) {
     let li = document.createElement("li");
     li.className = "message";
-    li.innerHTML = `<span class="from">${message.from}</span>
+    li.innerHTML = `<span class="to">To : ${message.to}</span>
     <span class="subject">${message.subject}</span>
      -
     <span class="body">${message.body}</span>`
@@ -23,4 +24,4 @@ class Inbox {
   }
 }
 
-module.exports = Inbox;
+module.exports = Sent;

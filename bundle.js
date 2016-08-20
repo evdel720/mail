@@ -46,9 +46,13 @@
 
 	const Router = __webpack_require__(1);
 	const Inbox = __webpack_require__(2);
+	const Sent = __webpack_require__(4);
+	const Compose = __webpack_require__(5);
 
 	const routes = {};
 	routes.inbox = new Inbox();
+	routes.sent = new Sent();
+	routes.compose = new Compose();
 
 	document.addEventListener("DOMContentLoaded", function () {
 
@@ -63,7 +67,7 @@
 	  let content = document.querySelector(".content");
 	  let router = new Router(content, routes);
 	  router.start();
-
+	  location.hash = "inbox";
 	});
 
 
@@ -106,8 +110,6 @@
 	const MessageStore = __webpack_require__(3);
 
 	class Inbox {
-	  constructor() {
-	  }
 
 	  render() {
 	    let ul = document.createElement("ul");
@@ -117,6 +119,16 @@
 	      ul.appendChild(this.renderMessage(message));
 	    });
 	    return ul;
+	  }
+
+	  renderMessage(message) {
+	    let li = document.createElement("li");
+	    li.className = "message";
+	    li.innerHTML = `<span class="from">${message.from}</span>
+	    <span class="subject">${message.subject}</span>
+	     -
+	    <span class="body">${message.body}</span>`
+	    return li;
 	  }
 	}
 
@@ -140,22 +152,104 @@
 	  ]
 	};
 
-
-	class MessageStore {
+	class Message {
 	  constructor() {
-	    this.messages = messages;
-	  }
-
-	  getInboxMessages() {
-	    return this.messages.inbox;
-	  }
-
-	  getSentMessages() {
-	    return this.messages.sent;
+	    this.from = "";
+	    this.to = "";
+	    this.subject = "";
+	    this.body = "";
 	  }
 	}
 
+	let messageDraft = new Message();
+
+	const MessageStore = {};
+	MessageStore.getInboxMessages = function() { return messages.inbox };
+	MessageStore.getSentMessages = function() { return messages.sent };
+	MessageStore.getMessageDraft = function() { return messageDraft }
+	MessageStore.updateDraftField = function(field, value) {
+	  messageDraft[field] = value;
+	}
+	MessageStore.sendDraft = function() {
+	  messages.sent.push(messageDraft);
+	  messageDraft = new Message();
+	}
 	module.exports = MessageStore;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const MessageStore = __webpack_require__(3);
+
+
+	class Sent {
+
+	  render() {
+	    let ul = document.createElement("ul");
+	    ul.className = "messages";
+	    let messages = MessageStore.getSentMessages();
+	    messages.forEach((message) => {
+	      ul.appendChild(this.renderMessage(message));
+	    });
+	    return ul;
+	  }
+
+	  renderMessage(message) {
+	    let li = document.createElement("li");
+	    li.className = "message";
+	    li.innerHTML = `<span class="to">To : ${message.to}</span>
+	    <span class="subject">${message.subject}</span>
+	     -
+	    <span class="body">${message.body}</span>`
+	    return li;
+	  }
+	}
+
+	module.exports = Sent;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const MessageStore = __webpack_require__(3);
+
+
+	class Compose {
+	  render() {
+	    let div = document.createElement("div");
+	    div.className = "new-message";
+	    div.innerHTML = this.renderForm();
+	    div.addEventListener("change", (e) => {
+	      e.preventDefault();
+	      MessageStore.updateDraftField(e.target.name, e.target.value);
+	    })
+
+	    div.addEventListener("submit", (e) => {
+	      e.preventDefault();
+	      MessageStore.sendDraft();
+	      window.location.hash = "inbox";
+	    })
+	    return div;
+	  }
+
+	  renderForm() {
+	    let message = MessageStore.getMessageDraft();
+	    let form = `
+	    <p class="new-message-header">New Message</p>
+	    <form class="compose-form">
+	      <input placeholder="Recipient" name="to", type="text", value="${message.to}"/>
+	      <input placeholder="Subject" name="subject", type="text", value="${message.subject}"/>
+	      <textarea name="body" rows="20">${message.body}</textarea>
+	      <button type="submit" class="btn btn-primary submit-message">Send</button>
+	    </form>`
+	    return form;
+	  }
+	}
+
+	module.exports = Compose;
 
 
 /***/ }

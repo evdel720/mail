@@ -11,19 +11,26 @@ let messages = {
   ]
 };
 
-
-class MessageStore {
+class Message {
   constructor() {
-    this.messages = messages;
-  }
-
-  getInboxMessages() {
-    return this.messages.inbox;
-  }
-
-  getSentMessages() {
-    return this.messages.sent;
+    this.from = "";
+    this.to = "";
+    this.subject = "";
+    this.body = "";
   }
 }
 
+let messageDraft = new Message();
+
+const MessageStore = {};
+MessageStore.getInboxMessages = function() { return messages.inbox };
+MessageStore.getSentMessages = function() { return messages.sent };
+MessageStore.getMessageDraft = function() { return messageDraft }
+MessageStore.updateDraftField = function(field, value) {
+  messageDraft[field] = value;
+}
+MessageStore.sendDraft = function() {
+  messages.sent.push(messageDraft);
+  messageDraft = new Message();
+}
 module.exports = MessageStore;
